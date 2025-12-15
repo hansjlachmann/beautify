@@ -7,6 +7,8 @@ A simple command-line tool written in Rust that takes a JSON string as input and
 - Parse JSON strings from command-line arguments
 - Pretty-print JSON with proper indentation
 - Error handling for invalid JSON
+- Cross-platform support (Linux, macOS, Windows)
+- Continuous Integration with GitHub Actions
 
 ## Installation
 
@@ -65,6 +67,19 @@ Output:
 ## Dependencies
 
 - `serde_json` - For JSON parsing and serialization
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and testing. The workflow:
+
+- Builds the project on Linux, macOS, and Windows
+- Runs all tests with `cargo test`
+- Builds release binaries
+- Checks code formatting with `cargo fmt`
+- Runs linting with `cargo clippy`
+- Tests the CLI with various JSON inputs to ensure proper functionality
+
+The workflow is triggered on pushes to `main`, `master`, and `claude/*` branches, as well as on pull requests.
 
 ## License
 

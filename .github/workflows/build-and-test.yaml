@@ -1,0 +1,87 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, master, claude/* ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-test:
+    name: Build and Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust toolchain
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: rustfmt, clippy
+
+    - name: Check Rust version
+      run: |
+        rustc --version
+        cargo --version
+
+    - name: Build project
+      run: cargo build --verbose
+
+    - name: Run tests
+      run: cargo test --verbose
+
+    - name: Build release
+      run: cargo build --release --verbose
+
+    - name: Check formatting
+      run: cargo fmt -- --check
+      continue-on-error: true
+
+    - name: Run clippy
+      run: cargo clippy -- -D warnings
+      continue-on-error: true
+
+    - name: Test CLI - Simple JSON
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ./target/release/beautify.exe '{"name":"John","age":30}'
+        else
+          ./target/release/beautify '{"name":"John","age":30}'
+        fi
+
+    - name: Test CLI - Nested JSON
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ./target/release/beautify.exe '{"users":[{"name":"Alice","age":25},{"name":"Bob","age":30}],"total":2}'
+        else
+          ./target/release/beautify '{"users":[{"name":"Alice","age":25},{"name":"Bob","age":30}],"total":2}'
+        fi
+
+    - name: Test CLI - Invalid JSON (should fail)
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ./target/release/beautify.exe '{invalid json}' && exit 1 || exit 0
+        else
+          ./target/release/beautify '{invalid json}' && exit 1 || exit 0
+        fi
+
+    - name: Test CLI - No arguments (should fail gracefully)
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ./target/release/beautify.exe && exit 1 || exit 0
+        else
+          ./target/release/beautify && exit 1 || exit 0
+        fi
