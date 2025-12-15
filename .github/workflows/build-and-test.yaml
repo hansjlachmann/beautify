@@ -10,8 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-and-test:
-    name: Build and Test on ${{ matrix.os }}
+  build:
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -33,13 +33,10 @@ jobs:
         rustc --version
         cargo --version
 
-    - name: Build project
+    - name: Build project (debug)
       run: cargo build --verbose
 
-    - name: Run tests
-      run: cargo test --verbose
-
-    - name: Build release
+    - name: Build project (release)
       run: cargo build --release --verbose
 
     - name: Check formatting
@@ -49,6 +46,30 @@ jobs:
     - name: Run clippy
       run: cargo clippy -- -D warnings
       continue-on-error: true
+
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust toolchain
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+
+    - name: Run unit tests
+      run: cargo test --verbose
+
+    - name: Build release for CLI tests
+      run: cargo build --release --verbose
 
     - name: Test CLI - Simple JSON
       shell: bash
