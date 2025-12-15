@@ -13,15 +13,13 @@ fn main() {
     let json_input = &args[1];
 
     match serde_json::from_str::<serde_json::Value>(json_input) {
-        Ok(parsed) => {
-            match serde_json::to_string_pretty(&parsed) {
-                Ok(beautified) => println!("{}", beautified),
-                Err(e) => {
-                    eprintln!("Error beautifying JSON: {}", e);
-                    process::exit(1);
-                }
+        Ok(parsed) => match serde_json::to_string_pretty(&parsed) {
+            Ok(beautified) => println!("{}", beautified),
+            Err(e) => {
+                eprintln!("Error beautifying JSON: {}", e);
+                process::exit(1);
             }
-        }
+        },
         Err(e) => {
             eprintln!("Error parsing JSON: {}", e);
             process::exit(1);
