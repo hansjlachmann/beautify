@@ -12,6 +12,19 @@ A simple command-line tool written in Rust that takes a JSON string as input and
 
 ## Installation
 
+### Download pre-built binaries
+
+Pre-built binaries for Linux, macOS, and Windows are available as artifacts from GitHub Actions:
+
+1. Go to the [Actions tab](https://github.com/hansjlachmann/beautify/actions)
+2. Click on the latest successful workflow run
+3. Download the artifact for your platform:
+   - `beautify-Linux-X64` for Linux
+   - `beautify-macOS-ARM64` or `beautify-macOS-X64` for macOS
+   - `beautify-Windows-X64` for Windows
+
+Artifacts are retained for 7 days.
+
 ### Building from source
 
 ```bash
@@ -70,16 +83,22 @@ Output:
 
 ## CI/CD
 
-This project uses GitHub Actions for continuous integration and testing. The workflow:
+This project uses GitHub Actions for continuous integration and testing. The workflow is split into two jobs:
 
+**Build Job:**
 - Builds the project on Linux, macOS, and Windows
-- Runs all tests with `cargo test`
-- Builds release binaries
+- Builds both debug and release binaries
 - Checks code formatting with `cargo fmt`
 - Runs linting with `cargo clippy`
-- Tests the CLI with various JSON inputs to ensure proper functionality
+- Uploads release binaries as downloadable artifacts
 
-The workflow is triggered on pushes to `main`, `master`, and `claude/*` branches, as well as on pull requests.
+**Test Job:**
+- Runs all unit tests with `cargo test`
+- Builds release binaries for integration testing
+- Tests the CLI with various JSON inputs to ensure proper functionality
+- Uploads tested binaries as downloadable artifacts
+
+The workflow is triggered on pushes to `main`, `master`, and `claude/*` branches, as well as on pull requests. Build artifacts are available for download for 7 days.
 
 ## License
 
